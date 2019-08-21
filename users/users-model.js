@@ -7,15 +7,13 @@ module.exports = {
     findById,
 };
 
-function add(user) {
-    return db('users')
-        .insert(user)
-        .then(ids => {
-            return findById(ids);
-        })
+async function add(user) {
+    const [id] = await db('users').insert(user);
+  
+    return findById(id);
 }
 
-function find(id) {
+function find() {
     return db('users')
 }
 

@@ -6,23 +6,24 @@ const Users = require('./users-model')
 
 router.post('/register', (req, res) => {
     let newUser = req.body;
+    const hash = bcrypt.hashSync(newUser.password, 10);
+    newUser.password = hash
 
     Users.add(newUser)
-        .then(user => {
-            const token = getToken(user)
-            res.status(200).json({
-                message: `Welcome ${user.username}`,
-                token,
-            })
+        .then(saved => {
+            res.status(201).json(saved)
         })
         .catch(error => res.status(500).json(error))
 })
 
 router.post('/login', (req, res) => {
-    let { username, password } = req.body
+    let {username, password} = req.body
+    console.log('login', req.body)
 
-    Users.findBy({ username })
+    Users.findBy(username)
+        .first()
         .then(user => {
+            console.log(user)
             if (user && bcrypt.compareSync(password, user.password)) {
                 const token = getToken(user);
 

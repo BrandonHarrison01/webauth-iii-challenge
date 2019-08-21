@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
 const Users = require('./users-model')
+const restricted = require('../restricted-middleware')
 
 router.post('/register', (req, res) => {
     let newUser = req.body;
@@ -40,9 +41,10 @@ router.post('/login', (req, res) => {
         })
 })
 
-router.get('/users', (req, res) => {
+router.get('/users', restricted, (req, res) => {
     Users.find()
-        .then(results => res.json(results))
+        .then(results => res.json({ loggedInUser: req.user.username, results }))
+        .catch(err => res.status(500).json({ error: 'there was an error' }))
 })
 
 function getToken(user) {
